@@ -7,11 +7,26 @@
                 <h4 class="mb-0 fw-bold">➕ Tambah Buku Baru</h4>
             </div>
             <div class="card-body p-4">
-                <form action="{{ route('admin.books.store') }}" method="POST">
+                <form action="{{ route('admin.books.store') }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     <div class="mb-3">
                         <label class="form-label">Judul Buku</label>
                         <input type="text" name="title" class="form-control form-control-lg" required placeholder="Masukkan judul buku...">
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Kategori</label>
+                            <select name="category_id" class="form-select" required>
+                                <option value="">Pilih Kategori</option>
+                                @foreach($categories as $cat)
+                                <option value="{{ $cat->id }}">{{ $cat->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Cover Buku</label>
+                            <input type="file" name="cover" class="form-control" accept="image/*">
+                        </div>
                     </div>
                     <div class="row">
                         <div class="col-md-6 mb-3">

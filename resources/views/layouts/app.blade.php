@@ -26,16 +26,34 @@
                     @if(Auth::user()->role === 'admin')
                     <li class="nav-item"><a class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}" href="{{ route('admin.dashboard') }}">Dashboard</a></li>
                     <li class="nav-item"><a class="nav-link {{ request()->routeIs('admin.books.*') ? 'active' : '' }}" href="{{ route('admin.books.index') }}">Data Buku</a></li>
+                    <li class="nav-item"><a class="nav-link {{ request()->routeIs('admin.categories.*') ? 'active' : '' }}" href="{{ route('admin.categories.index') }}">Kategori Buku</a></li>
                     <li class="nav-item"><a class="nav-link {{ request()->routeIs('admin.transactions') ? 'active' : '' }}" href="{{ route('admin.transactions') }}">Laporan</a></li>
                     @else
                     <li class="nav-item"><a class="nav-link {{ request()->routeIs('user.dashboard') ? 'active' : '' }}" href="{{ route('user.dashboard') }}">Cari Buku</a></li>
                     <li class="nav-item"><a class="nav-link {{ request()->routeIs('user.borrowings') ? 'active' : '' }}" href="{{ route('user.borrowings') }}">Peminjaman Saya</a></li>
                     @endif
-                    <li class="nav-item ms-md-2">
-                        <form action="{{ route('logout') }}" method="POST" class="d-inline">
-                            @csrf
-                            <button type="submit" class="btn btn-danger btn-sm px-3">Logout</button>
-                        </form>
+                    <li class="nav-item dropdown ms-md-2">
+                        <a class="nav-link dropdown-toggle btn btn-outline-light px-3" href="#" role="button" data-bs-toggle="dropdown">
+                            👤 {{ Auth::user()->name }}
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark shadow-sm border-0">
+                            <li>
+                                <a class="dropdown-item d-flex align-items-center gap-2" href="{{ route('profile.edit') }}">
+                                    ⚙️ Edit Profil
+                                </a>
+                            </li>
+                            <li>
+                                <hr class="dropdown-divider border-secondary opacity-50">
+                            </li>
+                            <li>
+                                <form action="{{ route('logout') }}" method="POST">
+                                    @csrf
+                                    <button class="dropdown-item d-flex align-items-center gap-2 text-danger">
+                                        🚪 Logout
+                                    </button>
+                                </form>
+                            </li>
+                        </ul>
                     </li>
                     @else
                     <li class="nav-item"><a class="nav-link" href="{{ route('login') }}">Login</a></li>

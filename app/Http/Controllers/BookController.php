@@ -9,13 +9,14 @@ class BookController extends Controller
 {
     public function index()
     {
-        $books = Book::all();
+        $books = Book::with('category')->get();
         return view('admin.books.index', compact('books'));
     }
 
     public function create()
     {
-        return view('admin.books.create');
+        $categories = \App\Models\Category::all();
+        return view('admin.books.create', compact('categories'));
     }
 
     public function store(Request $request)
@@ -25,17 +26,27 @@ class BookController extends Controller
             'writer' => 'required',
             'publisher' => 'required',
             'year' => 'required|integer',
-            'stock' => 'required|integer'
+            'stock' => 'required|integer',
+            'cover' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'category_id' => 'required|exists:categories,id'
         ]);
 
-        Book::create($request->all());
+        $data = $request->all();
+
+        if ($request->hasFile('cover')) {
+            $path = $request->file('cover')->store('covers', 'public');
+            $data['cover'] = $path;
+        }
+
+        Book::create($data);
 
         return redirect()->route('admin.books.index')->with('success', 'Book added successfully');
     }
 
     public function edit(Book $book)
     {
-        return view('admin.books.edit', compact('book'));
+        $categories = \App\Models\Category::all();
+        return view('admin.books.edit', compact('book', 'categories'));
     }
 
     public function update(Request $request, Book $book)
@@ -45,16 +56,32 @@ class BookController extends Controller
             'writer' => 'required',
             'publisher' => 'required',
             'year' => 'required|integer',
-            'stock' => 'required|integer'
+            'stock' => 'required|integer',
+            'cover' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'category_id' => 'required|exists:categories,id'
         ]);
 
-        $book->update($request->all());
+        $data = $request->all();
+
+        if ($request->hasFile('cover')) {
+            // Delete old cover if exists
+            if ($book->cover && \Illuminate\Support\Facades\Storage::disk('public')->exists($book->cover)) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($book->cover);
+            }
+            $path = $request->file('cover')->store('covers', 'public');
+            $data['cover'] = $path;
+        }
+
+        $book->update($data);
 
         return redirect()->route('admin.books.index')->with('success', 'Book updated successfully');
     }
 
     public function destroy(Book $book)
     {
+        if ($book->cover && \Illuminate\Support\Facades\Storage::disk('public')->exists($book->cover)) {
+            \Illuminate\Support\Facades\Storage::disk('public')->delete($book->cover);
+        }
         $book->delete();
         return redirect()->route('admin.books.index')->with('success', 'Book deleted successfully');
     }

@@ -7,12 +7,38 @@
                 <h4 class="mb-0 fw-bold">✏️ Edit Buku</h4>
             </div>
             <div class="card-body p-4">
-                <form action="{{ route('admin.books.update', $book->id) }}" method="POST">
+                <form action="{{ route('admin.books.update', $book->id) }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     @method('PUT')
+
+                    @if($book->cover)
+                    <div class="mb-3 text-center">
+                        <label class="form-label d-block">Cover Saat Ini</label>
+                        <img src="{{ asset('storage/' . $book->cover) }}" alt="Cover" class="img-thumbnail" style="height: 200px; object-fit: cover;">
+                    </div>
+                    @endif
+
                     <div class="mb-3">
                         <label class="form-label">Judul Buku</label>
                         <input type="text" name="title" class="form-control form-control-lg" value="{{ $book->title }}" required>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Kategori</label>
+                            <select name="category_id" class="form-select" required>
+                                <option value="">Pilih Kategori</option>
+                                @foreach($categories as $cat)
+                                <option value="{{ $cat->id }}" {{ $book->category_id == $cat->id ? 'selected' : '' }}>
+                                    {{ $cat->name }}
+                                </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Ganti Cover</label>
+                            <input type="file" name="cover" class="form-control" accept="image/*">
+                            <small class="text-muted">Kosongkan jika tidak ingin mengubah cover.</small>
+                        </div>
                     </div>
                     <div class="row">
                         <div class="col-md-6 mb-3">

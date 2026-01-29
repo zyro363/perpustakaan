@@ -12,6 +12,7 @@
                         <th>Buku</th>
                         <th>Tanggal Pinjam</th>
                         <th>Tenggat</th>
+                        <th>Denda</th>
                         <th>Status</th>
                         <th>Aksi</th>
                     </tr>
@@ -22,6 +23,13 @@
                         <td class="fw-bold">{{ $b->book->title }}</td>
                         <td>{{ $b->borrow_date }}</td>
                         <td>{{ $b->return_date }}</td>
+                        <td>
+                            @if($b->fine > 0)
+                            <span class="badge bg-danger">Rp {{ number_format($b->fine, 0, ',', '.') }}</span>
+                            @else
+                            -
+                            @endif
+                        </td>
                         <td>
                             <span class="badge {{ $b->status == 'dipinjam' ? 'bg-warning text-dark' : 'bg-success' }}">
                                 {{ ucfirst($b->status) }}

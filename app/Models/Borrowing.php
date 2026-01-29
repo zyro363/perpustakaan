@@ -15,6 +15,7 @@ class Borrowing extends Model
         'borrow_date',
         'return_date',
         'status',
+        'fine',
     ];
 
     public function user()

@@ -14,12 +14,20 @@ class DashboardController extends Controller
     // User Section
     public function index(Request $request)
     {
-        $query = Book::query();
+        $query = Book::with('category');
+
         if ($request->has('search')) {
             $query->where('title', 'like', '%' . $request->search . '%');
         }
+
+        if ($request->has('category_id') && $request->category_id != '') {
+            $query->where('category_id', $request->category_id);
+        }
+
         $books = $query->get();
-        return view('user.dashboard', compact('books'));
+        $categories = \App\Models\Category::all();
+
+        return view('user.dashboard', compact('books', 'categories'));
     }
 
     public function borrow(Book $book)
@@ -61,7 +69,19 @@ class DashboardController extends Controller
         }
 
         DB::transaction(function () use ($borrowing) {
-            $borrowing->update(['status' => 'dikembalikan']);
+            $returnDate = \Carbon\Carbon::parse($borrowing->return_date);
+            $now = now();
+
+            $fine = 0;
+            if ($now->gt($returnDate)) {
+                $daysLate = $now->diffInDays($returnDate);
+                $fine = $daysLate * 1000;
+            }
+
+            $borrowing->update([
+                'status' => 'dikembalikan',
+                'fine' => $fine
+            ]);
             $borrowing->book->increment('stock');
         });
 
@@ -81,5 +101,17 @@ class DashboardController extends Controller
     {
         $borrowings = Borrowing::with(['user', 'book'])->latest()->get();
         return view('admin.transactions', compact('borrowings'));
+    }
+
+    public function print(Request $request)
+    {
+        $start_date = $request->start_date;
+        $end_date = $request->end_date;
+
+        $borrowings = Borrowing::with(['user', 'book'])
+            ->whereBetween('borrow_date', [$start_date, $end_date])
+            ->get();
+
+        return view('admin.reports.print', compact('borrowings', 'start_date', 'end_date'));
     }
 }

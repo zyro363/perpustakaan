@@ -15,7 +15,9 @@
             <table class="table table-hover align-middle">
                 <thead>
                     <tr>
+                        <th class="py-3">Cover</th>
                         <th class="py-3">Judul Buku</th>
+                        <th class="py-3">Kategori</th>
                         <th class="py-3">Penulis</th>
                         <th class="py-3">Penerbit</th>
                         <th class="py-3">Tahun</th>
@@ -26,7 +28,15 @@
                 <tbody>
                     @forelse($books as $book)
                     <tr>
+                        <td>
+                            @if($book->cover)
+                            <img src="{{ asset('storage/' . $book->cover) }}" alt="Cover" class="rounded shadow-sm" style="width: 50px; height: 75px; object-fit: cover;">
+                            @else
+                            <div class="bg-light text-muted d-flex align-items-center justify-content-center rounded" style="width: 50px; height: 75px; font-size: 1.5rem;">📖</div>
+                            @endif
+                        </td>
                         <td class="fw-bold">{{ $book->title }}</td>
+                        <td><span class="badge bg-secondary">{{ $book->category ? $book->category->name : 'Uncategorized' }}</span></td>
                         <td>{{ $book->writer }}</td>
                         <td>{{ $book->publisher }}</td>
                         <td><span class="badge bg-info text-dark">{{ $book->year }}</span></td>

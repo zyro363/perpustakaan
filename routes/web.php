@@ -18,6 +18,9 @@ Route::controller(AuthController::class)->group(function () {
 });
 
 Route::middleware(['auth'])->group(function () {
+    // Profile Routes
+    Route::get('/profile', [\App\Http\Controllers\ProfileController::class, 'edit'])->name('profile.edit');
+    Route::put('/profile', [\App\Http\Controllers\ProfileController::class, 'update'])->name('profile.update');
 
     // User Routes
     Route::middleware(['is.user'])->group(function () {
@@ -39,5 +42,12 @@ Route::middleware(['auth'])->group(function () {
             'destroy' => 'admin.books.destroy',
         ]);
         Route::get('/admin/transactions', [DashboardController::class, 'transactions'])->name('admin.transactions');
+        Route::get('/admin/print', [DashboardController::class, 'print'])->name('admin.print');
+        Route::resource('admin/categories', \App\Http\Controllers\CategoryController::class)->names([
+            'index' => 'admin.categories.index',
+            'store' => 'admin.categories.store',
+            'update' => 'admin.categories.update',
+            'destroy' => 'admin.categories.destroy',
+        ])->only(['index', 'store', 'update', 'destroy']);
     });
 });
