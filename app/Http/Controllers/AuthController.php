@@ -15,12 +15,17 @@ class AuthController extends Controller
 
     public function authenticate(Request $request)
     {
-        $credentials = $request->validate([
+        $request->validate([
             'username' => 'required',
             'password' => 'required'
         ]);
 
-        if (Auth::attempt($credentials)) {
+        $input = $request->username;
+        $password = $request->password;
+
+        $login_type = filter_var($input, FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
+
+        if (Auth::attempt([$login_type => $input, 'password' => $password])) {
             $request->session()->regenerate();
             if (Auth::user()->role === 'admin') {
                 return redirect('/admin/dashboard');
@@ -41,9 +46,9 @@ class AuthController extends Controller
         $req = $request->validate([
             'name' => 'required',
             'nis' => 'nullable|numeric',
+            'email' => 'required|email|unique:users',
             'username' => 'required|unique:users',
-            'password' => 'required|min:4',
-            'address' => 'required'
+            'password' => 'required|min:4|confirmed'
         ]);
 
         $req['password'] = bcrypt($req['password']);

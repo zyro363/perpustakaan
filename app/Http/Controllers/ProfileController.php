@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class ProfileController extends Controller
 {
@@ -13,7 +14,8 @@ class ProfileController extends Controller
 
     public function update(Request $request)
     {
-        $user = auth()->user();
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
 
         $request->validate([
             'name' => 'required|string|max:255',

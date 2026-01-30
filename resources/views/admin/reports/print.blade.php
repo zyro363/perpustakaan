@@ -43,7 +43,7 @@
     </style>
 </head>
 
-<body onload="window.print()">
+<body>
 
     <div class="no-print">
         <button onclick="window.print()">Cetak Laporan</button>

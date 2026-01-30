@@ -27,7 +27,12 @@ class DashboardController extends Controller
         $books = $query->get();
         $categories = \App\Models\Category::all();
 
-        return view('user.dashboard', compact('books', 'categories'));
+        // Fetch Settings
+        $duration = \App\Models\Setting::where('key', 'loan_duration')->value('value') ?? 7;
+        $fine = \App\Models\Setting::where('key', 'fine_per_day')->value('value') ?? 1000;
+        $add_terms = \App\Models\Setting::where('key', 'additional_terms')->value('value') ?? "Buku yang hilang atau rusak wajib diganti.";
+
+        return view('user.dashboard', compact('books', 'categories', 'duration', 'fine', 'add_terms'));
     }
 
     public function borrow(Book $book)
@@ -41,7 +46,7 @@ class DashboardController extends Controller
                 'user_id' => Auth::id(),
                 'book_id' => $book->id,
                 'borrow_date' => now(),
-                'return_date' => now()->addDays(7),
+                'return_date' => now()->addDays((int) (\App\Models\Setting::where('key', 'loan_duration')->value('value') ?? 7)),
                 'status' => 'dipinjam'
             ]);
 
@@ -53,8 +58,11 @@ class DashboardController extends Controller
 
     public function borrowings()
     {
-        $borrowings = Auth::user()->borrowings()->with('book')->get();
-        return view('user.borrowings', compact('borrowings'));
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+        $borrowings = $user->borrowings()->with('book')->get();
+        $finePerDay = (int) (\App\Models\Setting::where('key', 'fine_per_day')->value('value') ?? 1000);
+        return view('user.borrowings', compact('borrowings', 'finePerDay'));
     }
 
     public function returnBook(Borrowing $borrowing)
@@ -69,23 +77,48 @@ class DashboardController extends Controller
         }
 
         DB::transaction(function () use ($borrowing) {
-            $returnDate = \Carbon\Carbon::parse($borrowing->return_date);
-            $now = now();
+            $returnDate = \Carbon\Carbon::parse($borrowing->return_date)->startOfDay();
+            $now = now()->startOfDay();
 
             $fine = 0;
+            // Check if overdue
             if ($now->gt($returnDate)) {
                 $daysLate = $now->diffInDays($returnDate);
-                $fine = $daysLate * 1000;
+                // Fetch fine rate, ensuring integer
+                $finePerDay = (int) (\App\Models\Setting::where('key', 'fine_per_day')->value('value') ?? 1000);
+                $fine = abs((int) ($daysLate * $finePerDay));
             }
 
+            $status = $fine > 0 ? 'denda_belum_lunas' : 'dikembalikan';
+
             $borrowing->update([
-                'status' => 'dikembalikan',
+                'status' => $status,
                 'fine' => $fine
             ]);
             $borrowing->book->increment('stock');
         });
 
-        return back()->with('success', 'Buku Dikembalikan');
+        $borrowing->refresh();
+
+        $message = 'Buku Dikembalikan.';
+        if ($borrowing->fine > 0) {
+            $message .= ' Harap lunasi denda sebesar Rp ' . number_format($borrowing->fine, 0, ',', '.') . ' agar status menjadi Lunas.';
+        }
+
+        return back()->with('success', $message);
+    }
+
+    public function markAsPaid($id)
+    {
+        $borrowing = Borrowing::findOrFail($id);
+
+        if ($borrowing->status !== 'denda_belum_lunas') {
+            return back()->with('error', 'Transaksi ini tidak memiliki tagihan tertunda.');
+        }
+
+        $borrowing->update(['status' => 'dikembalikan']);
+
+        return back()->with('success', 'Denda telah ditandai LUNAS.');
     }
 
     // Admin Section
@@ -100,16 +133,18 @@ class DashboardController extends Controller
     public function transactions()
     {
         $borrowings = Borrowing::with(['user', 'book'])->latest()->get();
-        return view('admin.transactions', compact('borrowings'));
+        $finePerDay = (int) (\App\Models\Setting::where('key', 'fine_per_day')->value('value') ?? 1000);
+        return view('admin.transactions', compact('borrowings', 'finePerDay'));
     }
 
     public function print(Request $request)
     {
-        $start_date = $request->start_date;
-        $end_date = $request->end_date;
+        $start_date = $request->start_date ?? now()->startOfMonth()->toDateString();
+        $end_date = $request->end_date ?? now()->toDateString();
 
         $borrowings = Borrowing::with(['user', 'book'])
-            ->whereBetween('borrow_date', [$start_date, $end_date])
+            ->whereDate('borrow_date', '>=', $start_date)
+            ->whereDate('borrow_date', '<=', $end_date)
             ->get();
 
         return view('admin.reports.print', compact('borrowings', 'start_date', 'end_date'));

@@ -27,6 +27,7 @@
                         <th class="py-3">Tanggal Kembali</th>
                         <th class="py-3">Denda</th>
                         <th class="py-3">Status</th>
+                        <th class="py-3">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -44,21 +45,51 @@
                         <td>{{ $b->borrow_date }}</td>
                         <td>{{ $b->return_date }}</td>
                         <td>
-                            @if($b->fine > 0)
-                            <span class="badge bg-danger">Rp {{ number_format($b->fine, 0, ',', '.') }}</span>
+                            @php
+                            $returnDate = \Carbon\Carbon::parse($b->return_date)->startOfDay();
+                            $now = \Carbon\Carbon::now()->startOfDay();
+                            $isOverdue = $b->status == 'dipinjam' && $now->gt($returnDate);
+                            $daysLate = $isOverdue ? $now->diffInDays($returnDate) : 0;
+                            $estFine = $daysLate * ($finePerDay ?? 1000);
+                            @endphp
+
+                            @if($b->fine != 0)
+                            <span class="badge bg-danger">Rp {{ number_format(abs($b->fine), 0, ',', '.') }}</span>
+                            @elseif($isOverdue)
+                            <span class="badge bg-danger bg-opacity-75" title="Estimasi Telat {{ $daysLate }} Hari">
+                                Est: Rp {{ number_format($estFine, 0, ',', '.') }}
+                            </span>
                             @else
                             -
                             @endif
                         </td>
                         <td>
-                            <span class="badge {{ $b->status == 'dipinjam' ? 'bg-warning text-dark' : 'bg-success' }} px-3 py-2 rounded-pill">
-                                {{ ucfirst($b->status) }}
-                            </span>
+                            @if($b->status == 'dipinjam')
+                            <span class="badge bg-warning text-dark px-3 py-2 rounded-pill">Dipinjam</span>
+                            @elseif($b->status == 'denda_belum_lunas')
+                            <span class="badge bg-danger px-3 py-2 rounded-pill">Belum Lunas</span>
+                            @else
+                            <span class="badge bg-success px-3 py-2 rounded-pill">Selesai</span>
+                            @endif
+                        </td>
+                        <td>
+                            @if($b->status == 'denda_belum_lunas')
+                            <form action="{{ route('admin.transactions.pay', $b->id) }}" method="POST">
+                                @csrf
+                                <button class="btn btn-sm btn-outline-success d-flex align-items-center gap-1" onclick="return confirm('Tandai denda ini sudah dibayar?')">
+                                    💰 Lunasi
+                                </button>
+                            </form>
+                            @elseif($b->status == 'dikembalikan' && $b->fine > 0)
+                            <span class="badge bg-success">✅ Lunas</span>
+                            @else
+                            <span class="text-muted small">-</span>
+                            @endif
                         </td>
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="5" class="text-center py-5">
+                        <td colspan="7" class="text-center py-5">
                             <h4 class="text-muted">Belum ada transaksi 💤</h4>
                         </td>
                     </tr>

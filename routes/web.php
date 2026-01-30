@@ -49,5 +49,19 @@ Route::middleware(['auth'])->group(function () {
             'update' => 'admin.categories.update',
             'destroy' => 'admin.categories.destroy',
         ])->only(['index', 'store', 'update', 'destroy']);
+
+        Route::resource('admin/users', \App\Http\Controllers\UserController::class)->names([
+            'index' => 'admin.users.index',
+            'edit' => 'admin.users.edit',
+            'update' => 'admin.users.update',
+            'destroy' => 'admin.users.destroy',
+        ])->only(['index', 'edit', 'update', 'destroy']);
+
+        // Settings Routes
+        Route::get('admin/settings', [\App\Http\Controllers\SettingController::class, 'index'])->name('admin.settings.index');
+        Route::put('admin/settings', [\App\Http\Controllers\SettingController::class, 'update'])->name('admin.settings.update');
+
+        // Fine Payment Route
+        Route::post('admin/transactions/{id}/pay', [\App\Http\Controllers\DashboardController::class, 'markAsPaid'])->name('admin.transactions.pay');
     });
 });

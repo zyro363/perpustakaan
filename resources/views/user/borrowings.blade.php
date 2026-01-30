@@ -24,16 +24,36 @@
                         <td>{{ $b->borrow_date }}</td>
                         <td>{{ $b->return_date }}</td>
                         <td>
-                            @if($b->fine > 0)
-                            <span class="badge bg-danger">Rp {{ number_format($b->fine, 0, ',', '.') }}</span>
+                            @php
+                            $returnDate = \Carbon\Carbon::parse($b->return_date)->startOfDay();
+                            $now = \Carbon\Carbon::now()->startOfDay();
+                            $isOverdue = $b->status == 'dipinjam' && $now->gt($returnDate);
+                            $daysLate = $isOverdue ? $now->diffInDays($returnDate) : 0;
+                            $estFine = $daysLate * ($finePerDay ?? 1000);
+                            @endphp
+
+                            @if($b->fine != 0)
+                            <div class="text-danger fw-bold" style="font-size: 0.85rem;">
+                                Terlambat<br>
+                                Denda: Rp {{ number_format(abs($b->fine), 0, ',', '.') }}
+                            </div>
+                            @elseif($isOverdue)
+                            <div class="text-danger fw-bold" style="font-size: 0.85rem;">
+                                Telat {{ $daysLate }} Hari<br>
+                                (Estimasi: Rp {{ number_format($estFine, 0, ',', '.') }})
+                            </div>
                             @else
-                            -
+                            <span class="text-muted">-</span>
                             @endif
                         </td>
                         <td>
-                            <span class="badge {{ $b->status == 'dipinjam' ? 'bg-warning text-dark' : 'bg-success' }}">
-                                {{ ucfirst($b->status) }}
-                            </span>
+                            @if($b->status == 'dipinjam')
+                            <span class="badge bg-warning text-dark">Dipinjam</span>
+                            @elseif($b->status == 'denda_belum_lunas')
+                            <span class="badge bg-danger">Menunggu Pembayaran</span>
+                            @else
+                            <span class="badge bg-success">Selesai</span>
+                            @endif
                         </td>
                         <td>
                             @if($b->status == 'dipinjam')

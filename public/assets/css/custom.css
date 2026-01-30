@@ -5,24 +5,50 @@
     --primary-color: #6366f1; /* Indigo 500 */
     --primary-hover: #4f46e5;
     --secondary-color: #10b981; /* Emerald 500 */
-    --dark-bg: #0f172a; /* Slate 900 */
-    --card-bg: #1e293b; /* Slate 800 */
-    --text-color: #f1f5f9; /* Slate 100 */
+    
+    /* Default Dark Mode Variables */
+    --bg-body: #0f172a; /* Slate 900 */
+    --bg-card: #1e293b; /* Slate 800 */
+    --bg-input: #020617;
+    --bg-hover: rgba(255,255,255,0.05);
+    
+    --text-main: #f1f5f9; /* Slate 100 */
     --text-muted: #94a3b8; /* Slate 400 */
+    --text-placeholder: #475569;
+    
     --border-color: #334155; /* Slate 700 */
+    
+    --navbar-bg: rgba(15, 23, 42, 0.95);
+}
+
+[data-bs-theme="light"] {
+    --bg-body: #f8fafc; /* Slate 50 */
+    --bg-card: #ffffff;
+    --bg-input: #ffffff;
+    --bg-hover: rgba(0,0,0,0.05);
+    
+    --text-main: #0f172a; /* Slate 900 */
+    --text-muted: #64748b; /* Slate 500 */
+    --text-placeholder: #94a3b8;
+    
+    --border-color: #e2e8f0; /* Slate 200 */
+    
+    --navbar-bg: rgba(255, 255, 255, 0.95);
 }
 
 body {
-    background-color: var(--dark-bg) !important;
-    color: var(--text-color) !important;
+    background-color: var(--bg-body) !important;
+    color: var(--text-main) !important;
     font-family: 'Outfit', sans-serif !important;
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 /* Navbar */
 .navbar {
-    background-color: rgba(15, 23, 42, 0.95) !important;
+    background-color: var(--navbar-bg) !important;
     backdrop-filter: blur(10px);
     border-bottom: 1px solid var(--border-color);
+    transition: background-color 0.3s ease;
 }
 
 .navbar-brand {
@@ -35,38 +61,47 @@ body {
 }
 
 .nav-link:hover, .nav-link.active {
-    color: var(--text-color) !important;
+    color: var(--text-main) !important;
 }
 
 /* Cards */
 .card {
-    background-color: var(--card-bg) !important;
+    background-color: var(--bg-card) !important;
     border: 1px solid var(--border-color) !important;
-    color: var(--text-color) !important;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+    color: var(--text-main) !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); /* Lighter shadow for generic use */
     border-radius: 12px;
 }
+
+/* Specific Shadow Override for Dark Mode if needed, but 0.1 opacity black works for both usually */
 
 .card-header {
     border-bottom: 1px solid var(--border-color) !important;
     background-color: transparent !important;
-    color: var(--text-color) !important;
+    color: var(--text-main) !important;
 }
 
 /* Forms */
-.form-control {
-    background-color: #020617 !important;
+.form-control, .form-select {
+    background-color: var(--bg-input) !important;
     border: 1px solid var(--border-color) !important;
-    color: var(--text-color) !important;
+    color: var(--text-main) !important;
 }
 
-.form-control:focus {
+.form-control:focus, .form-select:focus {
     border-color: var(--primary-color) !important;
     box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2) !important;
+    background-color: var(--bg-input) !important;
+    color: var(--text-main) !important;
 }
 
 .form-control::placeholder {
-    color: #475569 !important;
+    color: var(--text-placeholder) !important;
+}
+
+/* Fix visibility of calendar icon in date inputs for dark mode */
+[data-bs-theme="dark"] ::-webkit-calendar-picker-indicator {
+    filter: invert(1);
 }
 
 /* Tables */
@@ -76,25 +111,82 @@ body {
 }
 
 .table th {
-    color: var(--text-color) !important;
+    color: var(--text-main) !important;
     border-bottom-color: var(--border-color) !important;
 }
 
 .table td {
     border-bottom-color: var(--border-color) !important;
-    color: var(--text-color) !important;
+    color: var(--text-main) !important;
 }
 
 .table-hover tbody tr:hover {
-    color: var(--text-color) !important;
-    background-color: rgba(255,255,255,0.05) !important;
+    color: var(--text-main) !important;
+    background-color: var(--bg-hover) !important;
 }
 
 /* Stat Cards */
-.stat-card.bg-primary { background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%) !important; }
-.stat-card.bg-success { background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important; }
-.stat-card.bg-warning { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important; }
+.stat-card.bg-primary { background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%) !important; color: white !important; }
+.stat-card.bg-success { background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important; color: white !important; }
+.stat-card.bg-warning { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important; color: white !important; }
 
 /* Buttons */
 .btn-primary { background-color: var(--primary-color) !important; border-color: var(--primary-color) !important; }
 .btn-primary:hover { background-color: var(--primary-hover) !important; }
+
+/* Invert text color for badges in light mode if needed, but badges usually look good with white text on colored bg */
+.badge.bg-secondary {
+    color: #fff !important;
+    background-color: #64748b !important; /* Slate 500 */
+}
+
+/* Dropdown Menu */
+.dropdown-menu {
+    background-color: var(--bg-card) !important;
+    border: 1px solid var(--border-color) !important;
+}
+
+.dropdown-item {
+    color: var(--text-main) !important;
+}
+
+.dropdown-item:hover {
+    background-color: var(--bg-hover) !important;
+    color: var(--text-main) !important;
+}
+
+.dropdown-divider {
+    border-top-color: var(--border-color) !important;
+}
+
+/* Modal Styling */
+.modal-content {
+    background-color: var(--bg-card) !important;
+    border: 1px solid var(--border-color) !important;
+    color: var(--text-main) !important;
+}
+
+.modal-header, .modal-footer {
+    border-color: var(--border-color) !important;
+}
+
+.modal-title {
+    color: var(--text-main) !important;
+}
+
+[data-bs-theme="dark"] .btn-close {
+    filter: invert(1);
+}
+
+/* Alert Styling for Dark Mode */
+[data-bs-theme="dark"] .alert-warning {
+    background-color: rgba(245, 158, 11, 0.1) !important;
+    color: #fcd34d !important;
+    border: 1px solid rgba(245, 158, 11, 0.2) !important;
+}
+
+[data-bs-theme="dark"] .alert-warning strong,
+[data-bs-theme="dark"] .alert-warning h6,
+[data-bs-theme="dark"] .alert-warning li {
+    color: #fcd34d !important;
+}
