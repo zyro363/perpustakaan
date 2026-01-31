@@ -5,9 +5,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BookController;
 use App\Http\Controllers\DashboardController;
 
-Route::get('/', function () {
-    return redirect()->route('login');
-});
+Route::get('/', [\App\Http\Controllers\WelcomeController::class, 'index'])->name('welcome');
 
 Route::controller(AuthController::class)->group(function () {
     Route::get('/login', 'loginForm')->name('login');

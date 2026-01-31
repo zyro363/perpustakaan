@@ -98,7 +98,7 @@
         @yield('content')
     </div>
 
-    <footer class="py-4 text-center text-muted border-top mt-auto">
+    <footer class="py-4 text-center text-muted border-top mt-5">
         <div class="container">
             <small>&copy; {{ date('Y') }} Perpustakaan Digital. All rights reserved.</small>
         </div>

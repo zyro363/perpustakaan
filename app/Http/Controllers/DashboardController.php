@@ -122,12 +122,20 @@ class DashboardController extends Controller
     }
 
     // Admin Section
-    public function adminDashboard()
+    public function adminDashboard(Request $request)
     {
+        $limit = $request->input('limit', 5);
+
         $totalBooks = Book::count();
         $totalUsers = User::where('role', 'user')->count();
         $totalBorrowings = Borrowing::count();
-        return view('admin.dashboard', compact('totalBooks', 'totalUsers', 'totalBorrowings'));
+
+        $latestTransactions = Borrowing::with(['user', 'book'])->latest()->take($limit)->get();
+        $latestUsers = User::where('role', 'user')->latest()->take($limit)->get();
+        $latestBooks = Book::with('category')->latest()->take($limit)->get();
+        $latestCategories = \App\Models\Category::withCount('books')->latest()->take($limit)->get();
+
+        return view('admin.dashboard', compact('totalBooks', 'totalUsers', 'totalBorrowings', 'latestTransactions', 'latestUsers', 'latestBooks', 'latestCategories', 'limit'));
     }
 
     public function transactions()

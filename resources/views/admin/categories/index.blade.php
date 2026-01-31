@@ -26,7 +26,7 @@
             <div class="card-body">
                 <div class="table-responsive">
                     <table class="table table-hover align-middle">
-                        <thead>
+                        <thead style="background-color: var(--bg-hover)">
                             <tr>
                                 <th>Nama Kategori</th>
                                 <th>Jumlah Buku</th>
