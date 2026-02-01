@@ -43,10 +43,16 @@
                     @else
                     <li class="nav-item"><a class="nav-link {{ request()->routeIs('user.dashboard') ? 'active' : '' }}" href="{{ route('user.dashboard') }}">Cari Buku</a></li>
                     <li class="nav-item"><a class="nav-link {{ request()->routeIs('user.borrowings') ? 'active' : '' }}" href="{{ route('user.borrowings') }}">Peminjaman Saya</a></li>
+                    <li class="nav-item"><a class="nav-link {{ request()->routeIs('user.favorites') ? 'active' : '' }}" href="{{ route('user.favorites') }}">Favorit Saya</a></li>
                     @endif
                     <li class="nav-item dropdown ms-md-2">
-                        <a class="nav-link dropdown-toggle btn btn-outline-light px-3" href="#" role="button" data-bs-toggle="dropdown">
-                            👤 {{ Auth::user()->name }}
+                        <a class="nav-link dropdown-toggle btn btn-outline-light px-3 d-flex align-items-center gap-2" href="#" role="button" data-bs-toggle="dropdown">
+                            @if(Auth::user()->avatar)
+                            <img src="{{ asset('storage/' . Auth::user()->avatar) }}" class="rounded-circle object-fit-cover" width="30" height="30" alt="Avatar">
+                            @else
+                            👤
+                            @endif
+                            {{ Auth::user()->name }}
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark shadow-sm border-0">
                             <li>

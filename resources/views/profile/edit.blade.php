@@ -7,9 +7,50 @@
                 <h4 class="mb-0 fw-bold">👤 Profil Saya</h4>
             </div>
             <div class="card-body p-4">
-                <form action="{{ route('profile.update') }}" method="POST">
+                <form action="{{ route('profile.update') }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     @method('PUT')
+
+                    <div class="text-center mb-4">
+                        <div class="d-inline-block position-relative">
+                            @if(Auth::user()->avatar)
+                            <img src="{{ asset('storage/' . Auth::user()->avatar) }}" class="rounded-circle shadow-sm object-fit-cover" style="width: 120px; height: 120px;">
+                            @else
+                            <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center shadow-sm" style="width: 120px; height: 120px; font-size: 3rem;">
+                                {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
+                            </div>
+                            @endif
+                            <label for="avatarInput" class="position-absolute bottom-0 end-0 bg-white rounded-circle shadow p-2" style="cursor: pointer;">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-camera-fill text-primary" viewBox="0 0 16 16">
+                                    <path d="M10.5 8.5a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z" />
+                                    <path d="M2 4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-1.172a2 2 0 0 1-1.414-.586l-.828-.828A2 2 0 0 0 9.172 2H6.828a2 2 0 0 0-1.414.586l-.828.828A2 2 0 0 1 3.172 4H2zm.5 2a.5.5 0 1 1 0-1 .5.5 0 0 1 0 1zm9 2.5a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0z" />
+                                </svg>
+                            </label>
+                            <input type="file" name="avatar" id="avatarInput" class="d-none" accept="image/*" onchange="previewImage(event)">
+                        </div>
+                        <div class="mt-2 text-muted small">Klik ikon kamera untuk mengganti foto</div>
+                    </div>
+                    <script>
+                        function previewImage(event) {
+                            var reader = new FileReader();
+                            reader.onload = function() {
+                                var output = document.querySelector('.object-fit-cover') || document.querySelector('.bg-primary');
+                                if (output.tagName === 'DIV') {
+                                    // If placeholder exists, replace with image
+                                    var img = document.createElement('img');
+                                    img.className = 'rounded-circle shadow-sm object-fit-cover';
+                                    img.style.width = '120px';
+                                    img.style.height = '120px';
+                                    img.src = reader.result;
+                                    output.parentNode.insertBefore(img, output);
+                                    output.remove();
+                                } else {
+                                    output.src = reader.result;
+                                }
+                            }
+                            reader.readAsDataURL(event.target.files[0]);
+                        }
+                    </script>
 
                     <h5 class="mb-3 text-muted">Informasi Dasar</h5>
                     <div class="mb-3">

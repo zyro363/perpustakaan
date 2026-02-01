@@ -84,8 +84,8 @@
                     @endif
                 </div>
                 <div class="card-body d-flex flex-column p-3">
-                    <span class="badge bg-primary bg-opacity-10 text-primary mb-2 align-self-start" style="font-size: 0.75rem;">
-                        {{ $book->category ? $book->category->name : 'Umum' }}
+                    <span class="badge bg-primary text-white mb-2 align-self-start" style="font-size: 0.75rem;">
+                        {{ optional($book->category)->name ?: 'Umum' }}
                     </span>
 
                     <h6 class="card-title fw-bold text-truncate mb-1" title="{{ $book->title }}" style="font-size: 1.1rem;">{{ $book->title }}</h6>

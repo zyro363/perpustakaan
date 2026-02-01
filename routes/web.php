@@ -23,9 +23,16 @@ Route::middleware(['auth'])->group(function () {
     // User Routes
     Route::middleware(['is.user'])->group(function () {
         Route::get('/user/dashboard', [DashboardController::class, 'index'])->name('user.dashboard');
+        Route::get('/book/{id}', [BookController::class, 'show'])->name('user.book.show');
+        Route::post('/book/{id}/review', [App\Http\Controllers\ReviewController::class, 'store'])->name('book.review');
         Route::post('/borrow/{book}', [DashboardController::class, 'borrow'])->name('borrow.book');
         Route::get('/user/borrowings', [DashboardController::class, 'borrowings'])->name('user.borrowings');
+        Route::get('/user/borrowings', [DashboardController::class, 'borrowings'])->name('user.borrowings');
         Route::post('/return/{borrowing}', [DashboardController::class, 'returnBook'])->name('return.book');
+
+        // Favorites
+        Route::get('/user/favorites', [App\Http\Controllers\FavoriteController::class, 'index'])->name('user.favorites');
+        Route::post('/favorite/{bookId}', [App\Http\Controllers\FavoriteController::class, 'toggle'])->name('favorite.toggle');
     });
 
     // Admin Routes
@@ -40,6 +47,7 @@ Route::middleware(['auth'])->group(function () {
             'destroy' => 'admin.books.destroy',
         ]);
         Route::get('/admin/transactions', [DashboardController::class, 'transactions'])->name('admin.transactions');
+        Route::get('/admin/export', [DashboardController::class, 'export'])->name('admin.export');
         Route::get('/admin/print', [DashboardController::class, 'print'])->name('admin.print');
         Route::resource('admin/categories', \App\Http\Controllers\CategoryController::class)->names([
             'index' => 'admin.categories.index',

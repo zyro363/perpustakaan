@@ -11,8 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('borrowings', function (Blueprint $table) {
-            $table->integer('fine')->default(0)->after('status');
+        Schema::table('users', function (Blueprint $table) {
+            $table->string('avatar')->nullable()->after('email');
         });
     }
 
@@ -21,8 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('borrowings', function (Blueprint $table) {
-            $table->dropColumn('fine');
+        Schema::table('users', function (Blueprint $table) {
+            $table->dropColumn('avatar');
         });
     }
 };

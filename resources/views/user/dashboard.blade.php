@@ -38,24 +38,28 @@
         <div class="card h-100 border-0 shadow-sm feature-card">
             <!-- Cover Display -->
             <div class="card-img-top overflow-hidden position-relative" style="height: 220px;">
-                @if($book->cover)
-                <img src="{{ asset('storage/' . $book->cover) }}" class="w-100 h-100" style="object-fit: cover;" alt="{{ $book->title }}">
-                @else
-                <div class="w-100 h-100 d-flex align-items-center justify-content-center text-white"
-                    style="background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" class="bi bi-book opacity-50" viewBox="0 0 16 16">
-                        <path d="M1 2.828c.885-.37 2.154-.769 3.388-.893 1.33-.134 2.458.063 3.112.752v9.746c-.935-.169-1.997-.003-2.61.164-.78.213-1.597.51-1.99.65L2 12.392V3.118c-.326.11-.648.24-.96.398V2.828z" />
-                        <path d="M4.388 1.935C5.457 1.838 6.648 1.99 7.42 2.651c.773-.661 1.964-.813 3.032-.716.896.082 1.853.389 2.502.73v9.096c-.65-.341-1.558-.65-2.502-.73-1.069-.097-2.26.055-3.032.716-.773-.66-1.964-.813-3.032-.716-.897.081-1.854.388-2.502.73V3.18c.649-.342 1.558-.65 2.502-.73zM14 12.72c.677-.282 1.411-.564 2-.792V1.826c-.732.227-1.467.51-2.142.792l-1.858.749v9.354l2 1.748v-1.75z" />
-                    </svg>
-                </div>
+                <a href="{{ route('user.book.show', $book->id) }}" class="text-decoration-none">
+                    @if($book->cover)
+                    <img src="{{ asset('storage/' . $book->cover) }}" class="w-100 h-100" style="object-fit: cover;" alt="{{ $book->title }}">
+                    @else
+                    <div class="w-100 h-100 d-flex align-items-center justify-content-center text-white"
+                        style="background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" class="bi bi-book opacity-50" viewBox="0 0 16 16">
+                            <path d="M1 2.828c.885-.37 2.154-.769 3.388-.893 1.33-.134 2.458.063 3.112.752v9.746c-.935-.169-1.997-.003-2.61.164-.78.213-1.597.51-1.99.65L2 12.392V3.118c-.326.11-.648.24-.96.398V2.828z" />
+                            <path d="M4.388 1.935C5.457 1.838 6.648 1.99 7.42 2.651c.773-.661 1.964-.813 3.032-.716.896.082 1.853.389 2.502.73v9.096c-.65-.341-1.558-.65-2.502-.73-1.069-.097-2.26.055-3.032.716-.773-.66-1.964-.813-3.032-.716-.897.081-1.854.388-2.502.73V3.18c.649-.342 1.558-.65 2.502-.73zM14 12.72c.677-.282 1.411-.564 2-.792V1.826c-.732.227-1.467.51-2.142.792l-1.858.749v9.354l2 1.748v-1.75z" />
+                        </svg>
+                    </div>
+                </a>
                 @endif
             </div>
             <div class="card-body d-flex flex-column p-3">
-                <span class="badge bg-primary bg-opacity-10 text-white mb-2 align-self-start" style="font-size: 0.75rem;">
-                    {{ $book->category ? $book->category->name : 'Umum' }}
+                <span class="badge bg-primary text-white mb-2 align-self-start" style="font-size: 0.75rem;">
+                    {{ optional($book->category)->name ?: 'Umum' }}
                 </span>
 
-                <h6 class="card-title fw-bold text-truncate mb-1" title="{{ $book->title }}" style="font-size: 1.1rem;">{{ $book->title }}</h6>
+                <a href="{{ route('user.book.show', $book->id) }}" class="text-decoration-none text-reset">
+                    <h6 class="card-title fw-bold text-truncate mb-1" title="{{ $book->title }}" style="font-size: 1.1rem;">{{ $book->title }}</h6>
+                </a>
 
                 <div class="small text-muted mb-3">
                     <div class="d-flex align-items-center gap-2 mb-1">
@@ -74,17 +78,14 @@
 
                 <div class="mt-auto d-flex justify-content-between align-items-center pt-3 border-top border-light">
                     <div class="d-flex flex-column">
-                        <small class="text-muted" style="font-size: 0.7rem;">Stok Tersedia</small>
+                        <small class="text-muted" style="font-size: 0.7rem;">Stok</small>
                         <span class="fw-bold {{ $book->stock > 0 ? 'text-success' : 'text-danger' }}">
-                            {{ $book->stock }} Buku
+                            {{ $book->stock }}
                         </span>
                     </div>
-                    <button type="button"
-                        class="btn btn-sm {{ $book->stock > 0 ? 'btn-primary' : 'btn-secondary' }} px-3"
-                        {{ $book->stock <= 0 ? 'disabled' : '' }}
-                        onclick="openBorrowModal('{{ $book->title }}', '{{ route('borrow.book', $book->id) }}')">
-                        {{ $book->stock > 0 ? 'Pinjam' : 'Habis' }}
-                    </button>
+                    <a href="{{ route('user.book.show', $book->id) }}" class="btn btn-sm btn-outline-primary px-3 rounded-pill">
+                        Lihat Detail
+                    </a>
                 </div>
             </div>
         </div>

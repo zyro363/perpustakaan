@@ -65,7 +65,7 @@ class DashboardController extends Controller
         return view('user.borrowings', compact('borrowings', 'finePerDay'));
     }
 
-    public function returnBook(Borrowing $borrowing)
+    public function returnBook(Request $request, Borrowing $borrowing)
     {
         // Ensure user owns this borrowing
         if ($borrowing->user_id !== Auth::id()) {
@@ -76,7 +76,7 @@ class DashboardController extends Controller
             return back();
         }
 
-        DB::transaction(function () use ($borrowing) {
+        DB::transaction(function () use ($borrowing, $request) {
             $returnDate = \Carbon\Carbon::parse($borrowing->return_date)->startOfDay();
             $now = now()->startOfDay();
 
@@ -96,6 +96,23 @@ class DashboardController extends Controller
                 'fine' => $fine
             ]);
             $borrowing->book->increment('stock');
+
+            // Handle Review if Rating is provided
+            if ($request->filled('rating')) {
+                // Check if already reviewed to prevent duplicates from multiple clicks/requests
+                $existingReview = \App\Models\Review::where('user_id', Auth::id())
+                    ->where('book_id', $borrowing->book_id)
+                    ->exists();
+
+                if (!$existingReview) {
+                    \App\Models\Review::create([
+                        'user_id' => Auth::id(),
+                        'book_id' => $borrowing->book_id,
+                        'rating' => $request->rating,
+                        'comment' => $request->comment,
+                    ]);
+                }
+            }
         });
 
         $borrowing->refresh();
@@ -143,6 +160,44 @@ class DashboardController extends Controller
         $borrowings = Borrowing::with(['user', 'book'])->latest()->get();
         $finePerDay = (int) (\App\Models\Setting::where('key', 'fine_per_day')->value('value') ?? 1000);
         return view('admin.transactions', compact('borrowings', 'finePerDay'));
+    }
+
+    public function export(Request $request)
+    {
+        $filename = "laporan-transaksi-" . date('Y-m-d-H-i-s') . ".csv";
+
+        $headers = [
+            "Content-type" => "text/csv",
+            "Content-Disposition" => "attachment; filename=$filename",
+            "Pragma" => "no-cache",
+            "Cache-Control" => "must-revalidate, post-check=0, pre-check=0",
+            "Expires" => "0"
+        ];
+
+        $columns = ['ID', 'Peminjam', 'Buku', 'Tanggal Pinjam', 'Batas Kembali', 'Status', 'Denda'];
+
+        $borrowings = Borrowing::with(['user', 'book'])->latest()->get();
+
+        $callback = function () use ($borrowings, $columns) {
+            $file = fopen('php://output', 'w');
+            fputcsv($file, $columns);
+
+            foreach ($borrowings as $b) {
+                fputcsv($file, [
+                    $b->id,
+                    optional($b->user)->name ?? 'User Terhapus',
+                    optional($b->book)->title ?? 'Buku Terhapus',
+                    $b->borrow_date,
+                    $b->return_date,
+                    ucfirst(str_replace('_', ' ', $b->status)),
+                    $b->fine ?? 0
+                ]);
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
     }
 
     public function print(Request $request)

@@ -13,6 +13,9 @@
                 <button class="btn btn-primary d-flex align-items-center gap-2">
                     🖨️ Cetak
                 </button>
+                <a href="{{ route('admin.export') }}" class="btn btn-success d-flex align-items-center gap-2 text-white">
+                    📊 Export Excel
+                </a>
             </form>
         </div>
     </div>

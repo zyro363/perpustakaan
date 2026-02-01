@@ -13,6 +13,10 @@
                         <label class="form-label">Judul Buku</label>
                         <input type="text" name="title" class="form-control form-control-lg" required placeholder="Masukkan judul buku...">
                     </div>
+                    <div class="mb-3">
+                        <label class="form-label">Sinopsis</label>
+                        <textarea name="synopsis" class="form-control" rows="4" placeholder="Ringkasan atau deskripsi buku..."></textarea>
+                    </div>
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Kategori</label>

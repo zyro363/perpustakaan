@@ -28,6 +28,7 @@ class BookController extends Controller
             'year' => 'required|integer',
             'stock' => 'required|integer',
             'cover' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'synopsis' => 'nullable|string',
             'category_id' => 'required|exists:categories,id'
         ]);
 
@@ -58,6 +59,7 @@ class BookController extends Controller
             'year' => 'required|integer',
             'stock' => 'required|integer',
             'cover' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'synopsis' => 'nullable|string',
             'category_id' => 'required|exists:categories,id'
         ]);
 
@@ -84,5 +86,17 @@ class BookController extends Controller
         }
         $book->delete();
         return redirect()->route('admin.books.index')->with('success', 'Book deleted successfully');
+    }
+
+    public function show($id)
+    {
+        $book = Book::with('category', 'reviews.user')->findOrFail($id);
+
+        // Fetch Settings for Modal
+        $duration = \App\Models\Setting::where('key', 'loan_duration')->value('value') ?? 7;
+        $fine = \App\Models\Setting::where('key', 'fine_per_day')->value('value') ?? 1000;
+        $add_terms = \App\Models\Setting::where('key', 'additional_terms')->value('value') ?? "Buku yang hilang atau rusak wajib diganti.";
+
+        return view('user.books.show', compact('book', 'duration', 'fine', 'add_terms'));
     }
 }
