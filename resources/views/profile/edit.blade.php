@@ -76,8 +76,8 @@
                     </div>
                     @endif
                     <div class="mb-3">
-                        <label class="form-label">Alamat</label>
-                        <textarea name="address" class="form-control" rows="3">{{ Auth::user()->address }}</textarea>
+                        <label class="form-label">Kelas</label>
+                        <input type="text" name="address" class="form-control" value="{{ Auth::user()->address }}" placeholder="Contoh: XII RPL 1">
                     </div>
 
                     <hr class="my-4">
